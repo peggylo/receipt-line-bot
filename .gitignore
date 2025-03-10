@@ -1,0 +1,22 @@
+# 忽略包含敏感資訊的檔案
+SecretConfig.gs
+
+# 忽略其他不需要版控的檔案
+.DS_Store
+
+# 忽略系統檔案和目錄
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 忽略 Google Drive 同步檔案
+Library/
+Compositions/
+Containers/
+Google/
+
+# 忽略其他暫存檔案
+*.tmp
+*.temp
+*.log 
