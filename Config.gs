@@ -1,8 +1,11 @@
 const CONFIG = {
-  // 非敏感的設定
-  SHEET_NAME: '發票記錄',
-  DRIVE_FOLDER_NAME: '發票圖片',
+  // 一般設定
+  VERSION: "1.0.0",
   
-  // 從 SecretConfig.gs 取得敏感設定
-  ...SECRET_CONFIG
+  // 整合 SecretConfig
+  ...SECRET_CONFIG,
+  
+  // 其他設定
+  SHEET_NAME: "發票記錄",
+  DRIVE_FOLDER_NAME: "發票圖片"
 }; 
