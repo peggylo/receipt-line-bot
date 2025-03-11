@@ -19,4 +19,5 @@ Google/
 # 忽略其他暫存檔案
 *.tmp
 *.temp
-*.log 
+*.log docs/line_api/*.pdf
+docs/line_api/*.pdf
