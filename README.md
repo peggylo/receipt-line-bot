@@ -14,6 +14,8 @@ project/
 ├── DataManager.gs           # Google Sheets/Drive 操作
 ├── UserDialog.gs            # 使用者互動流程
 ├── Config.gs                # 設定檔
+├── Logger.gs                # 日誌記錄管理
+├── appsscript.json         # GAS 專案設定檔
 ├── .gitignore              # git 忽略檔案設定
 ├── SecretConfig.gs          # 敏感資訊設定檔（不納入版控）
 └── SecretConfig.example.gs  # 敏感資訊設定範例
@@ -67,7 +69,49 @@ project/
 - SecretConfig.example.gs：提供設定範例和說明
 - 包含 LINE Bot 相關的 API 金鑰和使用者 ID
 
-#### 8. .gitignore
+#### 8. Logger.gs
+- 提供完整的日誌記錄功能
+- 管理 Google Sheets 日誌儲存
+- 記錄 API 呼叫和 Webhook 事件
+- 自動建立所需的日誌工作表
+- 提供錯誤追蹤和系統監控功能
+- 範例：
+  ```javascript
+  const logger = new LogManager();
+  logger.logApiCall(requestId, method, endpoint, statusCode, response);
+  logger.logWebhook(eventType, eventContent, result, statusCode);
+  ```
+
+#### 9. appsscript.json
+- Google Apps Script 專案的核心設定檔
+- 定義專案的基本配置：
+  - 時區設定（Asia/Taipei）
+  - 專案相依性
+  - 例外記錄方式
+  - 執行環境版本（V8）
+  - Web 應用程式設定
+    - 執行身分
+    - 存取權限
+  - OAuth 範圍設定
+    - Google Sheets API
+    - Google Drive API
+    - 外部請求權限
+    - 使用者郵件權限
+- 範例：
+  ```json
+  {
+    "timeZone": "Asia/Taipei",
+    "dependencies": {},
+    "exceptionLogging": "STACKDRIVER",
+    "runtimeVersion": "V8",
+    "webapp": {
+      "executeAs": "USER_DEPLOYING",
+      "access": "ANYONE_ANONYMOUS"
+    }
+  }
+  ```
+
+#### 10. .gitignore
 - 設定 git 版本控制的忽略規則
 - 防止敏感資訊被意外提交
 - 忽略系統自動生成的檔案
