@@ -4,6 +4,12 @@
  * @return {Object|null} - 處理結果，如果不需處理則返回 null
  */
 function handleEvent(event) {
+  // 防止 undefined 錯誤
+  if (!event) {
+    console.error('收到無效的事件物件');
+    return null;
+  }
+
   console.log('事件類型：', event.type);
   console.log('完整事件：', JSON.stringify(event));
   
@@ -23,6 +29,12 @@ function handleEvent(event) {
  * @return {Object|null} - 處理結果，如果不需處理則返回 null
  */
 function handleMessage(event) {
+  // 防止 undefined 錯誤
+  if (!event || !event.message) {
+    console.error('收到無效的訊息事件');
+    return null;
+  }
+
   const message = event.message;
   
   // LINE 訊息可能是文字、圖片、貼圖等不同類型
@@ -45,6 +57,14 @@ function handleMessage(event) {
  * @return {Object} - API 呼叫結果
  */
 function replyText(replyToken, text) {
+  let logger;
+  try {
+    logger = new LogManager();
+    console.log('Logger 初始化成功');
+  } catch (error) {
+    console.error('Logger 初始化失敗：', error);
+  }
+
   // LINE Messaging API 的端點
   const url = 'https://api.line.me/v2/bot/message/reply';
   
@@ -58,7 +78,7 @@ function replyText(replyToken, text) {
   };
   
   // 發送 HTTP POST 請求到 LINE 平台
-  return UrlFetchApp.fetch(url, {
+  const response = UrlFetchApp.fetch(url, {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
@@ -67,4 +87,17 @@ function replyText(replyToken, text) {
     },
     payload: JSON.stringify(payload)  // 將資料轉換為 JSON 字串
   });
+  
+  // 記錄 API 呼叫
+  if (logger) {
+    logger.logApiCall(
+      response.getHeaders()['x-line-request-id'],
+      'POST',
+      url,
+      response.getResponseCode(),
+      response.getContentText()
+    );
+  }
+  
+  return response;
 } 
