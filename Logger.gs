@@ -3,6 +3,8 @@
  */
 class LogManager {
   constructor() {
+    // 使用一個標記來表示 logger 是否可用
+    this.isAvailable = false;
     try {
       // 先检查 SPREADSHEET_ID 是否正确设置
       if (!SECRET_CONFIG.SPREADSHEET_ID) {
@@ -42,9 +44,9 @@ class LogManager {
         }
       }
       console.log('工作表准备完成');
+      this.isAvailable = true;
     } catch (error) {
-      console.error('Logger 初始化失败：', error);
-      throw error;
+      console.error('Logger 初始化失敗，切換到備用模式：', error);
     }
   }
 
@@ -52,6 +54,11 @@ class LogManager {
    * 記錄 API 請求
    */
   logApiCall(requestId, method, endpoint, statusCode, response) {
+    if (!this.isAvailable) {
+      // 如果 logger 不可用，只使用 console.log
+      console.log(`API Call - ${method} ${endpoint} (${statusCode}): ${JSON.stringify(response)}`);
+      return;
+    }
     try {
       const timestamp = new Date().toISOString();
       this.apiLogsSheet.appendRow([
@@ -72,6 +79,11 @@ class LogManager {
    * 記錄 Webhook 事件
    */
   logWebhook(eventType, eventContent, result, statusCode) {
+    if (!this.isAvailable) {
+      // 如果 logger 不可用，只使用 console.log
+      console.log(`Webhook - ${eventType}: ${JSON.stringify(eventContent)} (${statusCode})`);
+      return;
+    }
     try {
       const timestamp = new Date().toISOString();
       this.webhookLogsSheet.appendRow([
