@@ -10,6 +10,16 @@ function handleEvent(event) {
     return null;
   }
 
+  // 測試寫入試算表
+  try {
+    const logger = new LogManager();
+    const sheet = logger.spreadsheet.getSheetByName('API_Logs');
+    sheet.getRange('B2').setValue('hello');
+    console.log('成功寫入 hello 到試算表');
+  } catch (error) {
+    console.error('寫入試算表失敗：', error);
+  }
+
   console.log('事件類型：', event.type);
   console.log('完整事件：', JSON.stringify(event));
   
@@ -100,4 +110,86 @@ function replyText(replyToken, text) {
   }
   
   return response;
+}
+
+/**
+ * 測試寫入試算表
+ * 這個函數會在試算表的 B2 儲存格寫入 "hello"
+ */
+function testWriteToSheet() {
+  let logger;
+  
+  try {
+    // 1. 初始化 LogManager
+    console.log('開始初始化 LogManager...');
+    logger = new LogManager();
+    console.log('LogManager 初始化成功');
+
+    // 2. 取得試算表
+    console.log('嘗試取得 API_Logs 工作表...');
+    const sheet = logger.spreadsheet.getSheetByName('API_Logs');
+    if (!sheet) {
+      throw new Error('找不到 API_Logs 工作表');
+    }
+    console.log('成功取得工作表');
+
+    // 3. 寫入資料
+    console.log('開始寫入資料到 B2...');
+    sheet.getRange('B2').setValue('hello');
+    console.log('成功寫入 hello 到試算表 B2');
+
+    // 4. 記錄成功訊息
+    sheet.getRange('A2').setValue(new Date().toLocaleString());
+    sheet.getRange('C2').setValue('測試成功');
+    
+    return '測試成功完成';
+  } catch (error) {
+    // 詳細記錄錯誤
+    console.error('測試過程發生錯誤：');
+    console.error('錯誤類型：', error.name);
+    console.error('錯誤訊息：', error.message);
+    console.error('錯誤堆疊：', error.stack);
+    
+    // 如果 logger 初始化成功，也寫入錯誤到試算表
+    if (logger && logger.spreadsheet) {
+      try {
+        const sheet = logger.spreadsheet.getSheetByName('API_Logs');
+        sheet.getRange('A2').setValue(new Date().toLocaleString());
+        sheet.getRange('B2').setValue('ERROR');
+        sheet.getRange('C2').setValue(error.message);
+      } catch (logError) {
+        console.error('無法記錄錯誤到試算表：', logError);
+      }
+    }
+    
+    throw error;
+  }
+}
+
+/**
+ * 測試 handleEvent 函數
+ */
+function testHandleEvent() {
+  // 建立一個模擬的 LINE 事件物件
+  const mockEvent = {
+    type: 'message',
+    message: {
+      type: 'text',
+      text: '測試訊息'
+    },
+    replyToken: 'test-reply-token'
+  };
+
+  try {
+    console.log('開始測試 handleEvent...');
+    const result = handleEvent(mockEvent);
+    console.log('handleEvent 測試完成，結果：', result);
+    return '測試成功';
+  } catch (error) {
+    console.error('handleEvent 測試失敗：');
+    console.error('錯誤類型：', error.name);
+    console.error('錯誤訊息：', error.message);
+    console.error('錯誤堆疊：', error.stack);
+    throw error;
+  }
 } 

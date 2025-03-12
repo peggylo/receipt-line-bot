@@ -4,9 +4,33 @@ function doPost(e) {
   try {
     logger = new LogManager();
     console.log('Logger 初始化成功');
+    
+    // 記錄所有收到的請求資訊
+    const sheet = logger.spreadsheet.getSheetByName('API_Logs');
+    if (sheet) {
+      const now = new Date().toLocaleString();
+      sheet.getRange('A2').setValue(now);
+      sheet.getRange('B2').setValue('POST 請求');
+      
+      // 記錄請求內容
+      let requestInfo = '請求內容：\n';
+      if (e && e.postData) {
+        requestInfo += e.postData.contents + '\n';
+      }
+      
+      // 記錄標頭資訊
+      requestInfo += '標頭資訊：\n';
+      if (e && e.headers) {
+        Object.keys(e.headers).forEach(key => {
+          requestInfo += `${key}: ${e.headers[key]}\n`;
+        });
+      }
+      
+      sheet.getRange('C2').setValue(requestInfo);
+      console.log('成功記錄 POST 請求資訊');
+    }
   } catch (error) {
-    console.error('Logger 初始化失敗：', error);
-    // 即使 logger 失敗，我們仍然要處理 webhook
+    console.error('Logger 初始化或記錄失敗：', error);
   }
 
   // 防止直接執行時的錯誤
@@ -40,12 +64,18 @@ function doPost(e) {
 
   if (!signature) {
     console.error('找不到簽名');
+    if (sheet) {
+      sheet.getRange('C2').setValue(sheet.getRange('C2').getValue() + '\n驗證失敗：找不到簽名');
+    }
     return ContentService.createTextOutput()
       .setResponseCode(401);
   }
 
   if (!validateSignature(e.postData.contents, signature)) {
     console.error('簽名驗證失敗');
+    if (sheet) {
+      sheet.getRange('C2').setValue(sheet.getRange('C2').getValue() + '\n驗證失敗：簽名不符');
+    }
     return ContentService.createTextOutput()
       .setResponseCode(401);
   }
@@ -99,6 +129,25 @@ function validateSignature(body, signature) {
 }
 
 function doGet(e) {
+  // 初始化 logger
+  let logger;
+  try {
+    logger = new LogManager();
+    console.log('Logger 初始化成功');
+    
+    // 記錄 webhook 訪問
+    const sheet = logger.spreadsheet.getSheetByName('API_Logs');
+    if (sheet) {
+      const now = new Date().toLocaleString();
+      sheet.getRange('A2').setValue(now);
+      sheet.getRange('B2').setValue('Webhook 訪問');
+      sheet.getRange('C2').setValue('GET 請求');
+      console.log('成功記錄 webhook 訪問');
+    }
+  } catch (error) {
+    console.error('Logger 操作失敗：', error);
+  }
+
   return ContentService.createTextOutput('Bot is running')
     .setMimeType(ContentService.MimeType.TEXT);
 } 
